@@ -1,7 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql
+    container_name: mysqldb
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: url_shortener
@@ -11,6 +11,8 @@ services:
       - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - hyve
 
   backend:
     image: node:18-alpine
@@ -24,6 +26,11 @@ services:
       - '3333:3333'
     depends_on:
       - mysql
+    networks:
+      - hyve
+
+networks:
+  hyve:
 
 volumes:
   mysql_data:

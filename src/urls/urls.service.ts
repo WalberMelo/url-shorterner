@@ -1,15 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
+
+import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  CreateUrlDto,
+  ShortUrlResponseDto,
+  UpdateUrlDto,
+  UrlHistoryDto
+} from './dto';
 
 @Injectable()
 export class UrlsService {
-  create(createUrlDto: CreateUrlDto) {
-    return 'This action adds a new url';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUrlDto: CreateUrlDto): Promise<ShortUrlResponseDto> {
+    try {
+      // 1) Create a short url using AI or some other logic.
+      const newUrl = 'www.nsm.com';
+      // 2) Save the short url in the database
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const shortUrl = await this.prisma.url.create({
+        data: {
+          originalUrl: createUrlDto.originalUrl,
+          shortUrl: newUrl,
+        },
+      });
+
+      return shortUrl as ShortUrlResponseDto;
+    } catch (error) {
+      console.error('Error creating short URL:', error);
+      throw new Error('Could not create short URL');
+    }
   }
 
-  findAll() {
-    return `This action returns all urls`;
+  async findAll(): Promise<UrlHistoryDto[]> {
+    // 1) Fetch all the urls from the database
+    const urls = await this.prisma.url.findMany();
+
+    return urls as UrlHistoryDto[];
   }
 
   findOne(id: number) {

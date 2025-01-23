@@ -8,8 +8,13 @@ import {
   Post
 } from '@nestjs/common';
 
-import { CreateUrlDto } from './dto/create-url.dto';
-import { UpdateUrlDto } from './dto/update-url.dto';
+import {
+  CreateUrlDto,
+  RedirectUrlDto,
+  ShortUrlResponseDto,
+  UpdateUrlDto,
+  UrlHistoryDto
+} from './dto';
 import { UrlsService } from './urls.service';
 
 @Controller('urls')
@@ -17,12 +22,12 @@ export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
   @Post('create')
-  create(@Body() createUrlDto: CreateUrlDto) {
+  create(@Body() createUrlDto: CreateUrlDto): Promise<ShortUrlResponseDto> {
     return this.urlsService.create(createUrlDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<UrlHistoryDto[]> {
     return this.urlsService.findAll();
   }
 
