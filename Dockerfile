@@ -8,6 +8,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Copy the Prisma schema directory
+COPY prisma ./prisma
+
 # Copy the rest of the application code
 COPY . .
 
@@ -20,5 +23,5 @@ RUN npm run build
 # Expose the application's port
 EXPOSE 3333
 
-# Command to run the application
-CMD ["npm", "run", "start:prod"]
+# Command to run Prisma migrations before starting the server
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
