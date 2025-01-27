@@ -3,12 +3,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import slugify from 'slugify';
 
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  CreateUrlDto,
-  ShortUrlResponseDto,
-  UpdateUrlDto,
-  UrlHistoryDto
-} from './dto';
+import { CreateUrlDto, ShortUrlResponseDto, UrlHistoryDto } from './dto';
 
 @Injectable()
 export class UrlsService {

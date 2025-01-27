@@ -1,19 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 
-import {
-  CreateUrlDto,
-  ShortUrlResponseDto,
-  UpdateUrlDto,
-  UrlHistoryDto
-} from './dto';
+import { CreateUrlDto, ShortUrlResponseDto, UrlHistoryDto } from './dto';
 import { UrlsService } from './urls.service';
 
 @Controller('url')
