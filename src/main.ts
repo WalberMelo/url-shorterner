@@ -10,7 +10,6 @@ async function bootstrap() {
   app.enableCors({
     origin: configService.get<string>('CORS_ORIGIN'),
     methods: configService.get<string>('CORS_METHODS'),
-    credentials: configService.get<boolean>('CORS_CREDENTIALS'),
   });
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
