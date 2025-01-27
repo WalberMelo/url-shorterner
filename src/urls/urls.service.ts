@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import slugify from 'slugify';
 
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -42,7 +42,7 @@ export class UrlsService {
       return shortUrl as ShortUrlResponseDto;
     } catch (error) {
       console.error('Error creating short URL:', error);
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Short url taken. Try again');
         }
