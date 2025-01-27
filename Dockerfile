@@ -26,4 +26,5 @@ RUN npm run build
 EXPOSE 3333
 
 # Command to run the application
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+
