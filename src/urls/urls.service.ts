@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import slugify from 'slugify';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -14,21 +16,38 @@ export class UrlsService {
 
   async create(createUrlDto: CreateUrlDto): Promise<ShortUrlResponseDto> {
     try {
-      // 1) Create a short url using AI or some other logic.
-      const newUrl = 'www.nsm.com';
-      // 2) Save the short url in the database
+      const urlObject = new URL(createUrlDto.originalUrl);
+
+      const path = urlObject.pathname.replace(/\d+/g, ''); // Remove numbers from the path
+
+      const baseSlug = slugify(path, {
+        lower: true,
+        strict: true,
+        remove: /[*+~.()'"!:@\d]/g,
+      });
+
+      // Add randomization to ensure uniqueness
+      const randomSuffix = Math.random().toString(36).slice(2, 7);
+      const newShortUrl = `${baseSlug}-${randomSuffix}`;
+
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const shortUrl = await this.prisma.url.create({
         data: {
           originalUrl: createUrlDto.originalUrl,
-          shortUrl: newUrl,
+          description: createUrlDto.description,
+          shortUrl: newShortUrl,
         },
       });
 
       return shortUrl as ShortUrlResponseDto;
     } catch (error) {
       console.error('Error creating short URL:', error);
-      throw new Error('Could not create short URL');
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Short url taken. Try again');
+        }
+      }
+      throw error;
     }
   }
 
@@ -47,7 +66,23 @@ export class UrlsService {
     return `This action updates a #${id} url`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} url`;
+  async remove(id: number) {
+    const url = await this.prisma.url.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!url) {
+      throw new ForbiddenException('URL not found');
+    }
+
+    await this.prisma.url.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return `This action removes a #${url.shortUrl} url`;
   }
 }

@@ -10,14 +10,13 @@ import {
 
 import {
   CreateUrlDto,
-  RedirectUrlDto,
   ShortUrlResponseDto,
   UpdateUrlDto,
   UrlHistoryDto
 } from './dto';
 import { UrlsService } from './urls.service';
 
-@Controller('urls')
+@Controller('url')
 export class UrlsController {
   constructor(private readonly urlsService: UrlsService) {}
 
@@ -26,7 +25,7 @@ export class UrlsController {
     return this.urlsService.create(createUrlDto);
   }
 
-  @Get()
+  @Get('history')
   findAll(): Promise<UrlHistoryDto[]> {
     return this.urlsService.findAll();
   }
