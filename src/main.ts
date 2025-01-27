@@ -15,7 +15,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  await app.listen(configService.get('PORT') || 3333);
+  await app.listen(process.env.PORT || configService.get('PORT') || 3333);
 }
 bootstrap().catch((error) => {
   console.error('Error during bootstrap:', error);
