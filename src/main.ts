@@ -15,12 +15,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  // Log DATABASE_URL
-  console.log(
-    'Resolved DATABASE_URL:',
-    configService.get<string>('DATABASE_URL'),
-  );
-
   await app.listen(process.env.PORT || configService.get('PORT') || 3333);
 }
 bootstrap().catch((error) => {
