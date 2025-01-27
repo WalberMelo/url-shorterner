@@ -58,14 +58,6 @@ export class UrlsService {
     return urls as UrlHistoryDto[];
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} url`;
-  }
-
-  update(id: number, updateUrlDto: UpdateUrlDto) {
-    return `This action updates a #${id} url`;
-  }
-
   async remove(id: number) {
     const url = await this.prisma.url.findUnique({
       where: {

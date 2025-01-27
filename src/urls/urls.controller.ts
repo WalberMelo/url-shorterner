@@ -30,16 +30,6 @@ export class UrlsController {
     return this.urlsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.urlsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto) {
-    return this.urlsService.update(+id, updateUrlDto);
-  }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.urlsService.remove(+id);
