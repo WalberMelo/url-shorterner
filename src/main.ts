@@ -17,4 +17,6 @@ async function bootstrap() {
 
   await app.listen(configService.get('PORT') || 3333);
 }
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('Error during bootstrap:', error);
+});
