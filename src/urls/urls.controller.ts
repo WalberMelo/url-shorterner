@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
+import { Response } from 'express';
 
 import { CreateUrlDto, ShortUrlResponseDto, UrlHistoryDto } from './dto';
 import { UrlsService } from './urls.service';
@@ -15,6 +25,27 @@ export class UrlsController {
   @Get('history')
   findAll(): Promise<UrlHistoryDto[]> {
     return this.urlsService.findAll();
+  }
+
+  @Get(':shortUrl')
+  async redirectToOriginalUrl(
+    @Param('shortUrl') shortUrl: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const shortCode = shortUrl.split('/').pop();
+
+      if (!shortCode) {
+        throw new NotFoundException('Invalid short URL');
+      }
+
+      const originalUrl = await this.urlsService.getOriginalUrl(shortCode);
+      return res.redirect(301, originalUrl);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new NotFoundException('Short URL not found');
+      }
+    }
   }
 
   @Delete(':id')

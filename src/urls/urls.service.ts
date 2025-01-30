@@ -1,6 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import slugify from 'slugify';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUrlDto, ShortUrlResponseDto, UrlHistoryDto } from './dto';
@@ -10,27 +13,16 @@ export class UrlsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUrlDto: CreateUrlDto): Promise<ShortUrlResponseDto> {
+    const randomSuffix = Math.random().toString(36).slice(2, 7);
+
+    const fullShortUrl = `${process.env.CORS_ORIGIN}/${randomSuffix}`;
+
     try {
-      const urlObject = new URL(createUrlDto.originalUrl);
-
-      const path = urlObject.pathname.replace(/\d+/g, ''); // Remove numbers from the path
-
-      const baseSlug = slugify(path, {
-        lower: true,
-        strict: true,
-        remove: /[*+~.()'"!:@\d]/g,
-      });
-
-      // Add randomization to ensure uniqueness
-      const randomSuffix = Math.random().toString(36).slice(2, 7);
-      const newShortUrl = `${baseSlug}-${randomSuffix}`;
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const shortUrl = await this.prisma.url.create({
         data: {
           originalUrl: createUrlDto.originalUrl,
           description: createUrlDto.description,
-          shortUrl: newShortUrl,
+          shortUrl: fullShortUrl,
         },
       });
 
@@ -41,9 +33,30 @@ export class UrlsService {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Short url taken. Try again');
         }
+        if (error.code === 'P2000') {
+          throw new ForbiddenException('Url too long');
+        }
+        throw new Error('Unexpected error occurred while creating short URL');
+      } else {
+        throw new Error('Unexpected error occurred while creating short URL');
       }
-      throw error;
     }
+  }
+
+  async getOriginalUrl(shortUrl: string): Promise<string> {
+    const urlEntry = await this.prisma.url.findFirst({
+      where: {
+        shortUrl: {
+          endsWith: `/${shortUrl}`,
+        },
+      },
+    });
+
+    if (!urlEntry) {
+      throw new NotFoundException('Short URL not found');
+    }
+
+    return urlEntry.originalUrl;
   }
 
   async findAll(): Promise<UrlHistoryDto[]> {
