@@ -15,7 +15,7 @@ export class UrlsService {
   async create(createUrlDto: CreateUrlDto): Promise<ShortUrlResponseDto> {
     const randomSuffix = Math.random().toString(36).slice(2, 7);
 
-    const fullShortUrl = `${process.env.CORS_ORIGIN}/${randomSuffix}`;
+    const fullShortUrl = `${process.env.FRONTEND_URL}/${randomSuffix}`;
 
     try {
       const shortUrl = await this.prisma.url.create({
